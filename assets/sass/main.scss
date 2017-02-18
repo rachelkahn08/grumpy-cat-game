@@ -1,20 +1,107 @@
-body {
-	background-color: #eee;
+html, body {
+	background-color: #111;
 	width: 100%;
 	height: 100%;
-	margin: 0;
+}
+
+* {
+	box-sizing: border-box;
 }
 
 #frame {
-	width: 600px;
-	height: 400px;
-	margin-top: 98px;
-	margin-left: 98px;
-	border: 2px solid black;
+	position:absolute;
+	width: 604px;
+	height: 404px;
+	margin-top: 90px;
+	margin-left: 90px;
+	border: 2px solid #999;
 	background-color: white;
+	z-index: 0;
 }
 
+.directions-a {
+	position: relative;
+	top: -50px;
+	left: 50%;
+	transform: translate(-50%);
+	text-align: center;
+	color: white;
+}
+
+.directions-d {
+	position: relative;
+	top: 404px;
+	left: 50%;
+	transform: translate(-50%);
+	text-align: center;
+	color: white;
+}
 
 .piece {
 	position: absolute;
+}
+
+.modal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: grey;
+    border-style: outset;
+    border-width: 5px;
+    border-color: blue;
+    height: 400px;
+    width: 650px;
+    font-family: "impact";
+    font-size: 40px;
+    text-align: center;
+    color: white;
+}
+
+.stopwatch {
+    position: absolute;
+    margin-left: 50%;
+    transform: translate(-50%);
+    margin-top: 20%;
+}
+
+.minutes, .seconds, .hundredths {
+    position: relative;
+    display: inline;
+    font-size: 3em;
+}
+
+.message {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translate(-50%);
+    font-size:1.5em;
+}
+
+.button {
+    position: absolute;
+    margin-left: 50%;
+    bottom: 30px;
+    transform: translate(-50%);
+    border-style: solid;
+    border-width: 3px;
+    border-style: outset;
+    border-color: white;
+    padding: 20px;
+    background: rgba(28, 27, 24, 0.5);
+    font-size: 25px;
+    letter-spacing: 0.08em;
+}
+
+.good {
+	font-family: "impact";
+	position: absolute;
+	left: 335px;
+	top: 152px;
+	transform: translate(-25%);
+	text-align: center;
+	font-size: 100px;
+	color: white;
+	z-index: 15;
 }

@@ -48,7 +48,6 @@
 	// 	write out the src
 	// 	push new obj to the array 
 
-
 var createImgObj = function (imgData) {
 	var imgObj = [];
 	
@@ -78,6 +77,20 @@ var createImgObj = function (imgData) {
 }
 
 var startGame = function () {
+	puzzleFrame = document.createElement("div");
+		puzzleFrame.setAttribute("id", "frame");
+		document.body.appendChild(puzzleFrame);
+
+	var directionsA = document.createElement("div");
+		directionsA.setAttribute("class", "directions-a");
+		directionsA.innerHTML = "rotate left with a";
+		puzzleFrame.appendChild(directionsA);
+
+	var directionsD = document.createElement("div");
+		directionsD.setAttribute("class", "directions-d");
+		directionsD.innerHTML = "rotate right with d";
+		puzzleFrame.appendChild(directionsD);
+
 	//path to images
 	var imgDefaultData = {
 		path: "./assets/img/cat_",
@@ -142,48 +155,38 @@ var movePiece = function(e) {
 
 var rotatePiece = function(e) {
 	if (pieceBeingDragged) {
-		console.log(e);
-		// e.preventDefault();
-		
-		var rotation = parseInt(pieceBeingDragged.dataset.rotation);
 
-		
+		e.preventDefault();
+		var currentRotation = parseInt(pieceBeingDragged.dataset.rotation);
+
 		// left = -90deg = a = 65
 		// right = +90deg = d = 68
-		
-		if (e.keyCode == 65) {  //ROTATE LEFT
-			
-			rotation -= 90;
+		if ( e.keyCode == 65 && currentRotation != 0 ) { //ROTATE LEFT 			
+			currentRotation -= 90;
+			updateRotation();
+		} else if ( e.keyCode == 65 && currentRotation == 0 ) {
+			currentRotation += 270;
+			updateRotation();
+		} else if ( e.keyCode == 68 && currentRotation != 360 ) {
+			currentRotation += 90;
+			updateRotation();
+		} else if ( e.keyCode == 68 && currentRotation == 360 ) {
+			currentRotation -= 270;
+			updateRotation();
+		}
 
-			if ( rotation == 360 ) {
-				rotation == 0;
-				pieceBeingDragged.style.transform = "rotate(" + ( rotation ) + "deg)";
-			} else if ( rotation == -90 ) {
-				rotation == 270;
-				pieceBeingDragged.style.transform = "rotate(" + ( rotation ) + "deg)";
-			} else {
-				pieceBeingDragged.style.transform = "rotate(" + ( rotation ) + "deg)";
-			}
-		} else if (e.keyCode == 68) {	//ROTATE RIGHT
-
-			rotation += 90;
-
-			if ( rotation == 360 ) {
-				rotation == 0;
-				pieceBeingDragged.style.transform = "rotate(" + ( rotation ) + "deg)";
-			} else if ( rotation == -90 ) {
-				rotation == 270;
-				pieceBeingDragged.style.transform = "rotate(" + ( rotation ) + "deg)";
-			} else {
-				pieceBeingDragged.style.transform = "rotate(" + ( rotation ) + "deg)";
-			}
-		}		
+		function updateRotation() {
+			pieceBeingDragged.dataset.rotation = currentRotation;
+			pieceBeingDragged.style.transform = "rotate(" + ( currentRotation ) + "deg)";
+		}
 	}
 }
+
 
 var stopDrag = function(e) {
 	if (pieceBeingDragged) {
 		checkForFit(pieceBeingDragged);	
+		checkForWin(pieceBeingDragged);
 		pieceBeingDragged = null;
 	}
 }
@@ -193,9 +196,11 @@ var checkForFit = function (lastDraggedPiece) {
 	var currentTop = parseInt(lastDraggedPiece.style.top);
 	var finalLeft = parseInt(lastDraggedPiece.dataset.finalX);
 	var finalTop = parseInt(lastDraggedPiece.dataset.finalY);
+	var rotation = parseInt(lastDraggedPiece.dataset.rotation);
 
 	if ( Math.abs( currentLeft - finalLeft ) <= 20 && 
-		( Math.abs( currentTop - finalTop ) <= 20 ) ) {
+		( Math.abs( currentTop - finalTop ) <= 20 ) ) 
+	if ( lastDraggedPiece.dataset.rotation == 0 | lastDraggedPiece.dataset.rotation == 360 ) {
 		lastDraggedPiece.style.left = finalLeft + "px";
 		lastDraggedPiece.style.top = finalTop + "px";	
 		lastDraggedPiece.classList.add( "locked" );
@@ -206,10 +211,185 @@ var pieceBeingDragged,
 	pieceBeginLeft,
 	pieceBeginTop,
 	mouseBeginLeft,
-	mouseBeginTop;
+	mouseBeginTop,
+	puzzleFrame;
 
+var createModal = function (modal) {
+	var modal = document.createElement("div");
+	modal.setAttribute("class", "modal");
+	document.body.appendChild(modal);
 
-startGame();
+	return modal;
+}
+
+var addMessage = function (message) {
+	var message = document.createElement("div");
+	message.setAttribute("class", "message");
+	document.body.appendChild(message);
+
+	return message;
+}
+
+var addButton = function (button) {
+	var button = document.createElement("div");
+	button.setAttribute("class", "button");
+	document.body.appendChild(button);
+
+	return button;
+}
+
+var createStopwatch = function (stopwatch) {
+	stopwatch = document.createElement("div");
+	stopwatch.setAttribute("class", "stopwatch");
+
+		var minutesContainer = document.createElement( "div" );
+			stopwatch.appendChild(minutesContainer);
+			minutesContainer.setAttribute( "class", "minutes" );
+			minutesContainer.innerHTML = "00";
+			
+		var secondsContainer = document.createElement( "div" );
+			stopwatch.appendChild(secondsContainer);
+			secondsContainer.setAttribute( "class", "seconds" );
+			secondsContainer.innerHTML = ":00";
+
+		var hundredthsContainer = document.createElement( "div" );
+			stopwatch.appendChild(hundredthsContainer);
+			hundredthsContainer.setAttribute( "class", "hundredths" );
+			hundredthsContainer.innerHTML = ".0";
+
+	return { stopwatch: stopwatch, 
+		minutesContainer: minutesContainer,
+		secondsContainer: secondsContainer,
+		hundredthsContainer: hundredthsContainer,
+	};
+}
+
+var stopwatchInterval;
+	var hundredths = 0;
+	var seconds = 0;
+	var minutes = 0;
+
+var runStopwatch = function() {
+	
+	hundredths++ 
+
+	if ( hundredths > 99 ) {
+		hundredths = 0;
+		seconds++;
+	}
+
+	if ( seconds > 59 ) {
+		seconds = 0;
+		minutes++; 
+	}
+}
+
+var appendStopwatch = function (e) {
+
+	var stopwatch = createStopwatch();	
+		
+		if ( minutes < 10 ) {
+			stopwatch.minutesContainer.innerHTML = "0" + minutes + ":";
+		} else { 
+			stopwatch.minutesContainer.innerHTML = minutes + ":";
+		}
+		
+		if ( seconds < 10 ) {
+			stopwatch.secondsContainer.innerHTML = "0" + seconds + ":";
+		} else {
+			stopwatch.secondsContainer.innerHTML = seconds + ":";
+		}
+
+		if ( hundredths < 10 ) {
+			stopwatch.hundredthsContainer.innerHTML = "0" + hundredths;
+		} else {
+			stopwatch.hundredthsContainer.innerHTML = hundredths;
+		}
+
+	createStopwatch(); 
+
+	e.appendChild(stopwatch.stopwatch);
+}
+
+var buttonClick = function () {
+	
+	if ( hundredths > 0 | seconds > 0 | minutes > 0 ) {
+		hundredths = 0;
+		seconds = 0;
+		minutes = 0;
+	}
+
+	stopwatchInterval = setInterval(runStopwatch, 10)
+		modal = document.querySelector(".modal");
+		modal.parentNode.removeChild(modal);
+	startGame();
+}
+
+var appendOpeningModal = function () {
+
+	var modal = createModal();
+	var message = addMessage();
+	var button = addButton();
+		button.innerHTML = "BEGIN.";
+	
+	// appendStopwatch(modal);
+
+	modal.appendChild(message);
+	modal.appendChild(button);
+
+	message.innerHTML = "I'M A PUZZLE";
+	button.addEventListener("click", buttonClick);
+
+}
+
+var appendContinuingModal = function () {
+
+	var modal = createModal();
+	var message = addMessage();
+	var button = addButton();
+		button.innerHTML = "AGAIN";
+	
+	appendStopwatch(modal);
+
+	modal.appendChild(message);
+	modal.appendChild(button);
+
+	message.innerHTML = "YOUR TIME:";
+	button.addEventListener("click", buttonClick);
+
+}
+
+var checkForWin = function () {
+	if ( document.querySelectorAll(".piece").length == document.querySelectorAll(".locked").length) {
+		clearInterval( stopwatchInterval );
+		var good = function() {
+			var text = document.createElement("div");
+				text.setAttribute("class", "good");
+				text.innerHTML = "GOOD.";
+				document.body.appendChild(text);
+		}
+		good();
+		setTimeout(onWin, 5000);
+	}
+}
+
+var onWin = function () {
+	lockedPiece = document.querySelectorAll(".locked");
+		i = 0;
+		while (i < lockedPiece.length) {
+			lockedPiece[i].parentNode.removeChild(lockedPiece[i]);
+			i++;
+		}
+
+	var text = document.querySelector(".good");
+	text.parentNode.removeChild(text);
+
+	puzzleFrame.parentNode.removeChild(puzzleFrame);
+	appendContinuingModal();
+}
+
+window.addEventListener("load", appendOpeningModal);
+// startGame();
 
 
 // HOMEWORK: 
