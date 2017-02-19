@@ -54,6 +54,8 @@ var createImgObj = function (imgData) {
 	var positionX = 100;
 	var positionY = 100;
 	var columnCount = 1;
+	var initialX = 325;
+	var initialY = 150;
 
 	//make a loop
 	for (var i = 1; i <= imgData.numOfImgs; i++) {
@@ -61,47 +63,45 @@ var createImgObj = function (imgData) {
 			src: imgData.path + i + imgData.ext,
 			finalPosX: positionX,
 			finalPosY: positionY,
+			initialX: initialX,
+			initialY: initialY,
 		};
 		imgObj.push(currentImg);
 
 		if ( columnCount != imgData.numOfCols) {
 			positionX = positionX + imgData.width;
+			initialX = initialX + imgData.width;
 			columnCount++;
 		} else {
 			columnCount = 1;
 			positionX = 100;
+			initialX = 325;
 			positionY += imgData.width;
+			initialY += imgData.width;
 		}
 	}
 	return imgObj;
 }
 
 var startGame = function () {
-	puzzleFrame = document.createElement("div");
-		puzzleFrame.setAttribute("id", "frame");
-		document.body.appendChild(puzzleFrame);
+	
+	setTimeout(function() {	
+		puzzleFrame = document.createElement("div");
+			puzzleFrame.setAttribute("id", "frame");
+			document.body.appendChild(puzzleFrame);
 
-	var directionsA = document.createElement("div");
-		directionsA.setAttribute("class", "directions-a");
-		directionsA.innerHTML = "rotate left with a";
-		puzzleFrame.appendChild(directionsA);
+		var directionsA = document.createElement("div");
+			directionsA.setAttribute("class", "directions-a");
+			directionsA.innerHTML = "rotate left with a";
+			puzzleFrame.appendChild(directionsA);
 
-	var directionsD = document.createElement("div");
-		directionsD.setAttribute("class", "directions-d");
-		directionsD.innerHTML = "rotate right with d";
-		puzzleFrame.appendChild(directionsD);
+		var directionsD = document.createElement("div");
+			directionsD.setAttribute("class", "directions-d");
+			directionsD.innerHTML = "rotate right with d";
+			puzzleFrame.appendChild(directionsD);
+	}, 1500);
 
-	//path to images
-	var imgDefaultData = {
-		path: "./assets/img/cat_",
-		ext: ".jpg",
-		width: 200,
-		numOfImgs: 6,
-		numOfCols: 3,
-	};
-	var imgArray = createImgObj(imgDefaultData);
-
-	placePieces(imgArray);
+	scatterPieces();
 
 	window.addEventListener("mousemove", movePiece);
 	window.addEventListener("mouseup", stopDrag);
@@ -109,22 +109,52 @@ var startGame = function () {
 }
 
 var placePieces = function (imgArray) {
+
 	for (var i = imgArray.length - 1; i >= 0; i--) {
 		var piece = document.createElement("img");
-		var rotation = ( Math.round( Math.random() * 3 ) * 90 );
 		piece.setAttribute("class", "piece");
 		piece.setAttribute("data-final-x", imgArray[i].finalPosX);
 		piece.setAttribute("data-final-y", imgArray[i].finalPosY);
+		
+		piece.setAttribute("data-initial-x", imgArray[i].initialX);
+		piece.setAttribute("data-initial-y", imgArray[i].initialY);
+
 		piece.setAttribute("src", imgArray[i].src);
-		piece.setAttribute("data-rotation", rotation );
-		piece.style.top = (Math.random() * 350) + 50 + "px";
-						//anywhere from 0 to 499.999999
-		piece.style.left = (Math.random() * 250) + 750 + "px";
-		piece.style.transform = "rotate(" + rotation + "deg)";
+
+		piece.style.top = piece.dataset.initialY + "px";
+		piece.style.left = piece.dataset.initialX + "px";
 
 		document.body.appendChild(piece);
+	}
 
-		piece.addEventListener("mousedown", startDrag);
+}
+
+var scatterPieces = function(piece) {
+	var allPieces = document.querySelectorAll(".piece");
+
+	for (var i = allPieces.length - 1; i >= 0; i--) {
+			var rotation = ( Math.round( Math.random() * 3 ) * 90 );
+			
+
+			var piece = allPieces[i];
+				piece.setAttribute("data-rotation", rotation );
+				piece.setAttribute("data-scatter-left", allPieces[i].scatterLeft );
+				piece.setAttribute("data-scatter-top", allPieces[i].scatterRight );
+
+			allPieces[i].addEventListener("mousedown", startDrag);
+
+	var finalLeftTween = allPieces[i].dataset.scatterLeft;
+	var finalTopTween = allPieces[i].dataset.scatterTop;
+
+	TweenMax.to (
+					".piece",
+					1,
+					{
+						top: finalTopTween,
+						left: finalLeftTween,
+						rotation: rotation,
+					}
+					)
 	}
 }
 
@@ -218,6 +248,18 @@ var createModal = function (modal) {
 	var modal = document.createElement("div");
 	modal.setAttribute("class", "modal");
 	document.body.appendChild(modal);
+
+	//path to images
+	var imgDefaultData = {
+		path: "./assets/img/cat_",
+		ext: ".jpg",
+		width: 200,
+		numOfImgs: 6,
+		numOfCols: 3,
+	};
+	var imgArray = createImgObj(imgDefaultData);
+
+	placePieces(imgArray);
 
 	return modal;
 }
@@ -320,8 +362,26 @@ var buttonClick = function () {
 	}
 
 	stopwatchInterval = setInterval(runStopwatch, 10)
-		modal = document.querySelector(".modal");
+
+	modal = document.querySelector(".modal");
+		while (modal.hasChildNodes()) {
+			modal.removeChild(modal.lastChild);
+		}
+
+		modal.style.background = "transparent";
+
+	TweenMax.to(".modal", 1.5, 
+		{ 	top: "98px",
+			left: "98px", 
+			transform: "(0 0)",
+		}
+	)
+
+	setTimeout( function() {
 		modal.parentNode.removeChild(modal);
+	}, 1500);
+
+	// setTimeout(startGame, 2010);
 	startGame();
 }
 

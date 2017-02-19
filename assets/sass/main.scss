@@ -12,10 +12,11 @@ html, body {
 	position:absolute;
 	width: 604px;
 	height: 404px;
-	margin-top: 90px;
-	margin-left: 90px;
+	top: 98px;
+	left: 98px;
 	border: 2px solid #999;
-	background-color: white;
+    border-style: outset;
+	background-color: rgba(255, 255, 255, 0.5);
 	z-index: 0;
 }
 
@@ -38,20 +39,20 @@ html, body {
 }
 
 .piece {
+	z-index: 2;
 	position: absolute;
 }
 
 .modal {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background: grey;
+    z-index:6;
+    left: 325px;
+    top: 150px;
+    background: transparent;
+    border: 2px solid #999;
     border-style: outset;
-    border-width: 5px;
-    border-color: blue;
-    height: 400px;
-    width: 650px;
+    width: 604px;
+	height: 404px;
     font-family: "impact";
     font-size: 40px;
     text-align: center;
@@ -63,6 +64,7 @@ html, body {
     margin-left: 50%;
     transform: translate(-50%);
     margin-top: 20%;
+    z-index: 4;
 }
 
 .minutes, .seconds, .hundredths {
@@ -72,7 +74,7 @@ html, body {
 }
 
 .message {
-    position: absolute;
+    position: relative;
     top: 40px;
     left: 50%;
     transform: translate(-50%);
@@ -84,10 +86,8 @@ html, body {
     margin-left: 50%;
     bottom: 30px;
     transform: translate(-50%);
-    border-style: solid;
-    border-width: 3px;
+    border: 2px solid white;
     border-style: outset;
-    border-color: white;
     padding: 20px;
     background: rgba(28, 27, 24, 0.5);
     font-size: 25px;
@@ -103,5 +103,5 @@ html, body {
 	text-align: center;
 	font-size: 100px;
 	color: white;
-	z-index: 15;
+	z-index: 4;
 }
