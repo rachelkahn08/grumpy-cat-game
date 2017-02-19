@@ -66,6 +66,7 @@ var createImgObj = function (imgData) {
 			initialX: initialX,
 			initialY: initialY,
 		};
+
 		imgObj.push(currentImg);
 
 		if ( columnCount != imgData.numOfCols) {
@@ -101,60 +102,52 @@ var startGame = function () {
 			puzzleFrame.appendChild(directionsD);
 	}, 1500);
 
-	scatterPieces();
-
 	window.addEventListener("mousemove", movePiece);
 	window.addEventListener("mouseup", stopDrag);
 	window.addEventListener("keyup", rotatePiece);
 }
 
 var placePieces = function (imgArray) {
-
 	for (var i = imgArray.length - 1; i >= 0; i--) {
 		var piece = document.createElement("img");
-		piece.setAttribute("class", "piece");
-		piece.setAttribute("data-final-x", imgArray[i].finalPosX);
-		piece.setAttribute("data-final-y", imgArray[i].finalPosY);
-		
-		piece.setAttribute("data-initial-x", imgArray[i].initialX);
-		piece.setAttribute("data-initial-y", imgArray[i].initialY);
-
-		piece.setAttribute("src", imgArray[i].src);
-
+			piece.setAttribute("class", "piece");
+			piece.setAttribute("data-final-x", imgArray[i].finalPosX);
+			piece.setAttribute("data-final-y", imgArray[i].finalPosY);	
+			piece.setAttribute("data-initial-x", imgArray[i].initialX);
+			piece.setAttribute("data-initial-y", imgArray[i].initialY);
+			piece.setAttribute("src", imgArray[i].src);
+			
 		piece.style.top = piece.dataset.initialY + "px";
 		piece.style.left = piece.dataset.initialX + "px";
+		piece.addEventListener("mousedown", startDrag);
 
 		document.body.appendChild(piece);
 	}
 
 }
 
-var scatterPieces = function(piece) {
-	var allPieces = document.querySelectorAll(".piece");
+var scatterPieces = function(imgArray) {
+	var piecesArray = [];
+	var piecesList = document.querySelectorAll(".piece");
+	
+	for (var i = piecesList.length - 1; i >= 0; i--) {
+		piecesArray.push(piecesList[i]);
+	}
 
-	for (var i = allPieces.length - 1; i >= 0; i--) {
-			var rotation = ( Math.round( Math.random() * 3 ) * 90 );
-			
+	for (var i = piecesArray.length - 1; i >= 0; i-- ) {
+		var tweenTop = (Math.random() * 350) + 50;
+		var tweenLeft = (Math.random() * 250) + 750;
+		var tweenRotation = ( Math.round( Math.random() * 3 ) * 90 );
 
-			var piece = allPieces[i];
-				piece.setAttribute("data-rotation", rotation );
-				piece.setAttribute("data-scatter-left", allPieces[i].scatterLeft );
-				piece.setAttribute("data-scatter-top", allPieces[i].scatterRight );
+		var piece = piecesArray[i];
 
-			allPieces[i].addEventListener("mousedown", startDrag);
+		TweenMax.to ( piece, 1.5, {
+			top: tweenTop,
+			left: tweenLeft,
+			rotation: tweenRotation,
+			})
 
-	var finalLeftTween = allPieces[i].dataset.scatterLeft;
-	var finalTopTween = allPieces[i].dataset.scatterTop;
-
-	TweenMax.to (
-					".piece",
-					1,
-					{
-						top: finalTopTween,
-						left: finalLeftTween,
-						rotation: rotation,
-					}
-					)
+		piece.setAttribute("data-rotation", tweenRotation );
 	}
 }
 
@@ -257,9 +250,11 @@ var createModal = function (modal) {
 		numOfImgs: 6,
 		numOfCols: 3,
 	};
+	
 	var imgArray = createImgObj(imgDefaultData);
 
 	placePieces(imgArray);
+
 
 	return modal;
 }
@@ -381,7 +376,10 @@ var buttonClick = function () {
 		modal.parentNode.removeChild(modal);
 	}, 1500);
 
-	// setTimeout(startGame, 2010);
+
+	var imgArray = 
+	scatterPieces(imgArray);
+	
 	startGame();
 }
 
@@ -391,8 +389,6 @@ var appendOpeningModal = function () {
 	var message = addMessage();
 	var button = addButton();
 		button.innerHTML = "BEGIN.";
-	
-	// appendStopwatch(modal);
 
 	modal.appendChild(message);
 	modal.appendChild(button);
@@ -429,7 +425,7 @@ var checkForWin = function () {
 				document.body.appendChild(text);
 		}
 		good();
-		setTimeout(onWin, 5000);
+		setTimeout(onWin, 3000);
 	}
 }
 
@@ -449,7 +445,6 @@ var onWin = function () {
 }
 
 window.addEventListener("load", appendOpeningModal);
-// startGame();
 
 
 // HOMEWORK: 
